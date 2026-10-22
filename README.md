@@ -46,5 +46,7 @@ HTML, CSS, JavaScript, ESP32, sensor ultrassônico HC-SR04 simulado, MQTT, Wokwi
 Esses valores são apenas parâmetros demonstrativos e precisam ser validados antes de qualquer uso real.
 
 ## Testes
-Registre capturas de tela e os resultados reais observados. Não declare um teste como aprovado antes de executá-lo.
+Registre capturas de tela e os resultados reais observados.
+<img width="1901" height="912" alt="image" src="https://github.com/user-attachments/assets/c4b23ea6-9c02-4a85-bc87-1d12e330e6bc" />
+
 
