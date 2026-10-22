@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brotas Alerta | Monitoramento IoT</title>
+  <style>
+    :root { color-scheme: light; --bg:#eef4f7; --card:#fff; --ink:#173042; --muted:#526777; --accent:#126782; --line:#d6e2e8; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--bg); color:var(--ink); }
+    header { padding:28px 18px; color:white; background:linear-gradient(120deg,#0b4057,#16819a); }
+    header .wrap, main, footer { max-width:1050px; margin:auto; }
+    h1 { margin:0 0 8px; font-size:clamp(1.6rem,4vw,2.4rem); }
+    header p { margin:0; max-width:720px; line-height:1.5; }
+    main { padding:22px 16px 32px; }
+    .notice { border-left:5px solid #d89b23; padding:12px 14px; background:#fff7e4; border-radius:8px; line-height:1.45; margin-bottom:18px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:0 3px 12px #1837470b; }
+    .label { color:var(--muted); font-size:.92rem; }
+    .value { font-size:1.8rem; font-weight:700; margin:10px 0; overflow-wrap:anywhere; }
+    .small { color:var(--muted); font-size:.9rem; line-height:1.45; }
+    .status { font-weight:700; padding:7px 10px; border-radius:999px; display:inline-block; background:#e2f4e9; color:#17653a; }
+    .status.warn { background:#fff0ce; color:#805400; }
+    .status.danger { background:#ffe1e1; color:#9a1f1f; }
+    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    button { border:0; border-radius:9px; padding:10px 14px; background:var(--accent); color:white; font-weight:700; cursor:pointer; }
+    button:focus-visible { outline:3px solid #e5a928; outline-offset:3px; }
+    .history { padding-left:20px; line-height:1.7; }
+    footer { padding:0 16px 24px; color:var(--muted); font-size:.9rem; line-height:1.5; }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
+  </style>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🌧️ Brotas Alerta</h1>
+    <p>Painel educativo para monitorar um nível de água simulado e consultar condições meteorológicas de Brotas/SP.</p>
+  </div>
+</header>
+<main>
+  <div class="notice"><strong>Atenção:</strong> protótipo escolar. Não é um alerta oficial, não prevê enchentes e não deve ser usado para decisões de segurança.</div>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="sensorTitle">
+      <div class="label" id="sensorTitle">Nível simulado da água</div>
+      <div class="value" id="nivel">Aguardando sensor…</div>
+      <div id="alerta" class="status" role="status" aria-live="polite">Aguardando dados MQTT</div>
+      <p class="small" id="medicao">O ESP32 precisa estar em execução no Wokwi.</p>
+    </section>
+    <section class="card">
+      <div class="label">Temperatura em Brotas</div>
+      <div class="value" id="temperatura">—</div>
+      <p class="small">Fonte: Open-Meteo</p>
+    </section>
+    <section class="card">
+      <div class="label">Umidade relativa</div>
+      <div class="value" id="umidade">—</div>
+      <p class="small">Estimativa meteorológica regional</p>
+    </section>
+    <section class="card">
+      <div class="label">Precipitação atual</div>
+      <div class="value" id="chuva">—</div>
+      <p class="small">Não representa a medição de um pluviômetro local.</p>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:14px">
+    <div class="row">
+      <div style="flex:1;min-width:220px">
+        <h2 style="margin:0 0 8px;font-size:1.2rem">Conexões do sistema</h2>
+        <p class="small" style="margin:0">MQTT: <strong id="mqttStatus" aria-live="polite">Conectando…</strong></p>
+        <p class="small" style="margin:6px 0 0">API meteorológica: <strong id="apiStatus" aria-live="polite">Aguardando consulta…</strong></p>
+        <p class="small" style="margin:6px 0 0">Última atualização: <span id="atualizacao">—</span></p>
+      </div>
+      <button id="atualizarClima" type="button">Atualizar clima</button>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <h2 style="margin-top:0;font-size:1.2rem">Histórico recente do sensor</h2>
+    <p class="small">As últimas medições recebidas nesta sessão aparecem abaixo. Atualizar a página limpa este histórico.</p>
+    <ol id="historico" class="history"><li>Aguardando primeira medição.</li></ol>
+  </section>
+</main>
+<footer>
+  <p><strong>Limites demonstrativos do protótipo:</strong> abaixo de 70% = normal; de 70% a 89% = atenção; 90% ou mais = alerta crítico. Esses limites não foram validados para um local real.</p>
+  <p>Dados meteorológicos: Open-Meteo. Mensagens do sensor: broker MQTT público de demonstração. Evite publicar dados pessoais.</p>
+</footer>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const topicPercent = "iot-brotas/agua/percentual";
+  const topicCm = "iot-brotas/agua/nivel_cm";
+  const history = [];
+  let client;
+
+  function showLevel(percent, cm) {
+    if (!Number.isFinite(percent)) return;
+    percent = Math.max(0, Math.min(100, percent));
+    $("nivel").textContent = `${percent.toFixed(0)}%`;
+    $("medicao").textContent = Number.isFinite(cm)
+      ? `Altura estimada: ${cm.toFixed(1)} cm`
+      : "Percentual recebido pelo MQTT.";
+    const tag = $("alerta");
+    tag.className = "status";
+    if (percent >= 90) {
+      tag.textContent = "ALERTA CRÍTICO — nível simulado muito alto";
+      tag.classList.add("danger");
+    } else if (percent >= 70) {
+      tag.textContent = "ATENÇÃO — nível simulado elevado";
+      tag.classList.add("warn");
+    } else {
+      tag.textContent = "NORMAL — dentro do limite didático";
+    }
+    const now = new Date().toLocaleTimeString("pt-BR");
+    history.unshift(`${now} — ${percent.toFixed(0)}%${Number.isFinite(cm) ? ` (${cm.toFixed(1)} cm)` : ""}`);
+    history.splice(8);
+    $("historico").innerHTML = "";
+    history.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      $("historico").appendChild(li);
+    });
+    $("atualizacao").textContent = new Date().toLocaleString("pt-BR");
+  }
+
+  function connectMqtt() {
+    if (typeof mqtt === "undefined") {
+      $("mqttStatus").textContent = "Biblioteca MQTT não carregou";
+      return;
+    }
+    client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt", {
+      clientId: "brotas_alerta_" + Math.random().toString(16).slice(2, 10),
+      clean: true,
+      connectTimeout: 10000,
+      reconnectPeriod: 3000
+    });
+    client.on("connect", () => {
+      $("mqttStatus").textContent = "Conectado";
+      client.subscribe([topicPercent, topicCm], (err) => {
+        if (err) $("mqttStatus").textContent = "Conectado, mas houve erro na inscrição";
+      });
+    });
+    client.on("reconnect", () => $("mqttStatus").textContent = "Reconectando…");
+    client.on("offline", () => $("mqttStatus").textContent = "Offline");
+    client.on("error", () => $("mqttStatus").textContent = "Erro de conexão");
+    client.on("message", (topic, payload) => {
+      const value = Number(payload.toString());
+      if (!Number.isFinite(value)) return;
+      if (topic === topicPercent) showLevel(value, null);
+      if (topic === topicCm) {
+        const percentText = $("nivel").textContent.replace("%", "");
+        const currentPercent = Number(percentText);
+        if (Number.isFinite(currentPercent)) showLevel(currentPercent, value);
+      }
+    });
+  }
+
+  async function loadWeather() {
+    $("apiStatus").textContent = "Consultando…";
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=-22.28&longitude=-48.13&current=temperature_2m,relative_humidity_2m,precipitation,rain&timezone=America%2FSao_Paulo";
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Resposta HTTP " + response.status);
+      const data = await response.json();
+      if (!data.current) throw new Error("A API não retornou condições atuais");
+      $("temperatura").textContent = `${data.current.temperature_2m} ${data.current_units?.temperature_2m || "°C"}`;
+      $("umidade").textContent = `${data.current.relative_humidity_2m} ${data.current_units?.relative_humidity_2m || "%"}`;
+      $("chuva").textContent = `${data.current.precipitation} ${data.current_units?.precipitation || "mm"}`;
+      $("apiStatus").textContent = "Dados recebidos";
+      $("atualizacao").textContent = new Date().toLocaleString("pt-BR");
+    } catch (error) {
+      $("apiStatus").textContent = "Não foi possível consultar. Verifique a internet e tente novamente.";
+      console.error("Erro na consulta meteorológica:", error);
+    }
+  }
+
+  $("atualizarClima").addEventListener("click", loadWeather);
+  connectMqtt();
+  loadWeather();
+})();
+</script>
+</body>
+</html>
