@@ -36,8 +36,6 @@ As fontes consultadas contextualizam a importância do tema, mas não são sufic
 
 Até o momento, não foram registradas observações presenciais próprias em um ponto específico da cidade. A etapa prática do projeto está concentrada na simulação computacional do sistema.
 
-Caso sejam realizadas visitas de campo, deverão ser anotados o local, a data, as condições observadas e a autorização necessária. Não devem ser realizadas aproximações perigosas de rios, pontes, áreas alagadas ou outros locais de risco.
-
 2.4. Hipótese de trabalho
 
 A hipótese do projeto é que um sistema demonstrativo capaz de combinar leituras simuladas do nível da água com informações meteorológicas pode facilitar a visualização de dados ambientais e contribuir para o estudo de soluções tecnológicas de acompanhamento preventivo.
@@ -178,22 +176,8 @@ WOKWI. ESP32 Simulation and Documentation. Ambiente de simulação de circuitos 
 
 As referências acima devem ser complementadas por outras fontes que forem efetivamente consultadas durante o desenvolvimento do projeto.
 
-## Anexo — Evidências do projeto
 
-Figura 1 — Simulação do circuito no Wokwi
-Inserir uma captura de tela mostrando o ESP32, o sensor ultrassônico e as conexões. Informar a data da captura e descrever o que ela demonstra.
 
-Figura 2 — Painel web do Brotas Alerta
-Inserir uma captura de tela da interface, mostrando os dados meteorológicos e os campos de monitoramento disponíveis. Informar a data da captura.
 
-Figura 3 — Comunicação MQTT
-Inserir uma captura de tela que comprove o recebimento das mensagens MQTT pelo painel ou por uma ferramenta de monitoramento.
-
-Figura 4 — Testes dos níveis de alerta
-Inserir capturas de tela demonstrando os valores testados e as classificações normal, atenção e alerta crítico.
-
-Observação: as imagens devem ser obtidas durante a execução real do projeto. Não utilizar imagens ilustrativas como se fossem resultados de testes realizados.em-sao-paulo/
-- Infosanbas, informações sobre Brotas/SP: https://infosanbas.org.br/municipio/brotas-sp/
-- Incluir outras fontes efetivamente consultadas pelo grupo.
 
 
