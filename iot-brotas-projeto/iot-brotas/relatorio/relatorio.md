@@ -5,7 +5,8 @@
 **Integrante:** Laura Salviatti
 **Professor:** Robson Lourenço e Renan Café  
 **Data:** 22/10/2026
-1. Introdução
+
+## 1. Introdução
 
 O projeto Brotas Alerta apresenta uma proposta educativa de Internet das Coisas (IoT) voltada à demonstração do monitoramento simulado do nível da água. A solução utiliza um ESP32, um sensor ultrassônico e um painel web para representar como informações coletadas por dispositivos eletrônicos podem ser transmitidas e visualizadas em tempo real.
 
@@ -15,7 +16,7 @@ Diante desse contexto, o objetivo do projeto é desenvolver um protótipo que de
 
 É importante destacar que o Brotas Alerta possui finalidade exclusivamente acadêmica. O sistema simula o monitoramento e não substitui equipamentos profissionais, sistemas oficiais de defesa civil ou mecanismos reais de prevenção de desastres.
 
-2. Problema investigado e evidências
+## 2. Problema investigado e evidências
 
 2.1. Área e local estudado
 
@@ -53,7 +54,7 @@ Entre os fatores que podem contribuir para alagamentos e enxurradas estão a int
 
 Entre as possíveis consequências estão dificuldades de circulação, danos à infraestrutura e riscos à segurança das pessoas. A reportagem consultada documenta consequências de uma ocorrência em Brotas em março de 2024, mas não permite atribuir todos esses impactos a uma única causa.
 
-3. Solução proposta e desenvolvida
+## 3. Solução proposta e desenvolvida
 
 O Brotas Alerta foi planejado como um protótipo de IoT que integra sensores simulados, comunicação entre dispositivos e uma interface web.
 
@@ -151,7 +152,7 @@ Ampliação do painel: incluir filtros por período, histórico de medições e 
 
 Tratamento de falhas: implementar mensagens para situações de desconexão, ausência de leituras ou indisponibilidade da API.
 
-4. Conclusão
+## 4. Conclusão
 
 O projeto Brotas Alerta foi planejado para demonstrar como a Internet das Coisas pode integrar sensores, comunicação MQTT, dados meteorológicos e interfaces web em uma solução tecnológica voltada ao estudo do monitoramento ambiental.
 
@@ -163,7 +164,7 @@ Após corrigir o erro, executar os testes e registrar as evidências, será poss
 
 A principal contribuição acadêmica do projeto está no aprendizado da integração entre hardware simulado, programação web, comunicação de dados e serviços externos. Para transformar essa demonstração em uma solução real, seriam necessárias validação técnica, testes em condições controladas, medidas de segurança e colaboração com os órgãos competentes.
 
-5. Referências
+## 5. Referências
 
 VEJA SÃO PAULO. Chuva causa alagamentos e deixa uma pessoa desaparecida em São Paulo. Agência Brasil, 10 mar. 2024. Disponível em: https://vejasp.abril.com.br/cidades/chuva-causa-alagamentos-e-deixa-uma-pessoa-desaparecida-em-sao-paulo/. Acesso em: 22 out. 2026.
 
@@ -177,7 +178,7 @@ WOKWI. ESP32 Simulation and Documentation. Ambiente de simulação de circuitos 
 
 As referências acima devem ser complementadas por outras fontes que forem efetivamente consultadas durante o desenvolvimento do projeto.
 
-Anexo — Evidências do projeto
+## Anexo — Evidências do projeto
 
 Figura 1 — Simulação do circuito no Wokwi
 Inserir uma captura de tela mostrando o ESP32, o sensor ultrassônico e as conexões. Informar a data da captura e descrever o que ela demonstra.
@@ -195,5 +196,4 @@ Observação: as imagens devem ser obtidas durante a execução real do projeto.
 - Infosanbas, informações sobre Brotas/SP: https://infosanbas.org.br/municipio/brotas-sp/
 - Incluir outras fontes efetivamente consultadas pelo grupo.
 
-## Anexo — evidências
-Inserir imagens com legenda, data e descrição do que cada imagem comprova.
+
